@@ -24,11 +24,9 @@
             android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".SkillActivity"
-            android:parentActivityName=".MainActivity" />
+            android:name=".SkillActivity" />
         <activity
-            android:name=".QuizActivity"
-            android:parentActivityName=".SkillActivity" />
+            android:name=".QuizActivity" />
 
         <meta-data
             android:name="preloaded_fonts"

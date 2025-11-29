@@ -2,4 +2,9 @@
     <string name="app_name">HowtoBIT</string>
     <string name="button_text">Begin</string>
     <string name="logo_image_desc">Brain logo</string>
+    <string name="submit_button_text">Submit</string>
+    <string name="back_button_text">Back</string>
+    <string name="save_progress">Save Progress</string>
+    <string name="todo">TODO</string>
+    <string name="back">Back</string>
 </resources>

@@ -7,99 +7,150 @@
     android:background="#8C9EC1"
     tools:context=".QuizActivity">
 
+    <!-- The Save button is constrained to the top-right corner -->
+
+    <!-- Question number is constrained to the top-center -->
+
+    <!-- Question text is constrained below the question number -->
+
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="36dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/save_progress"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/submit_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.098"
+        app:srcCompat="@drawable/ic_save"
+        app:tint="@color/save_button_color" />
+
+    <TextView
+        android:id="@+id/question_number_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.13"
+        tools:text="1/10" />
+
     <TextView
         android:id="@+id/question_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="30dp"
-        android:fontFamily="@font/advent_pro_semibold"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:textAlignment="center"
         android:textAppearance="?attr/textAppearanceHeadline6"
-        android:textSize="30sp"
+        android:textSize="22sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/question_number_text"
         tools:text="Question text goes here" />
 
+    <!-- Question image is constrained below the question text -->
     <ImageView
         android:id="@+id/question_image"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="150dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:visibility="gone"
+        android:contentDescription=""
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/question_text"
         tools:src="@mipmap/ic_launcher" />
 
-    <RadioGroup
-        android:id="@+id/options_radio_group"
-        android:layout_width="287dp"
-        android:layout_height="192dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:background="#FFFFFF"
+    <!-- Bottom buttons are constrained to the bottom of the screen -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/home_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/back_button_text"
+        app:backgroundTint="@color/celestial_blue"
+        app:cornerRadius="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/submit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/submit_button_text"
+        app:backgroundTint="@color/celestial_blue"
+        app:cornerRadius="14dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ScrollView fills the space between the image and the bottom buttons -->
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="16dp"
+        android:maxHeight="300dp"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toTopOf="@+id/home_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/question_image">
 
-        <RadioButton
-            android:id="@+id/option1_radio_button"
+        <RadioGroup
+            android:id="@+id/options_radio_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/advent_pro_semibold"
-            android:textSize="20sp"
-            tools:text="Option 1" />
+            android:padding="8dp">
 
-        <RadioButton
-            android:id="@+id/option2_radio_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/advent_pro_semibold"
-            android:textSize="20sp"
-            tools:text="Option 2" />
+            <!-- RadioButton text can now expand freely -->
+            <RadioButton
+                android:id="@+id/option1_radio_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:textSize="18sp"
+                tools:text="Option 1 with some very long text to see how it wraps around to the next line" />
 
-        <RadioButton
-            android:id="@+id/option3_radio_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/advent_pro_semibold"
-            android:textSize="20sp"
-            tools:text="Option 3" />
+            <RadioButton
+                android:id="@+id/option2_radio_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:textSize="18sp"
+                tools:text="Option 2" />
 
-        <RadioButton
-            android:id="@+id/option4_radio_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/advent_pro_semibold"
-            android:textSize="20sp"
-            tools:text="Option 4" />
+            <RadioButton
+                android:id="@+id/option3_radio_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:textSize="18sp"
+                tools:text="Option 3" />
 
-    </RadioGroup>
+            <RadioButton
+                android:id="@+id/option4_radio_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:textSize="18sp"
+                tools:text="Option 4" />
 
-    <Button
-        android:id="@+id/back_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginBottom="32dp"
-        android:text="Back"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/next_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
-        android:text="Next"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        </RadioGroup>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
