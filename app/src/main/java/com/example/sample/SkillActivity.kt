@@ -18,7 +18,7 @@ import androidx.core.content.ContextCompat
 class SkillActivity : AppCompatActivity() {
 
     private lateinit var levelContainer: LinearLayout
-    private val levelStatus = mutableMapOf<Int, Boolean>()
+    private val levelStatus = mutableMapOf<Int, Boolean?>()
     private lateinit var skillName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,11 +66,9 @@ class SkillActivity : AppCompatActivity() {
             val data = result.data
             val level = data?.getIntExtra("level", 0) ?: 0
             val passed = data?.getBooleanExtra("passed", false) ?: false
-            if (passed) {
-                levelStatus[level] = true
-                saveLevelStatus()
-                updateLevelButtons()
-            }
+            levelStatus[level] = passed
+            saveLevelStatus()
+            updateLevelButtons()
         }
     }
 
@@ -78,19 +76,26 @@ class SkillActivity : AppCompatActivity() {
         for (i in 0 until levelContainer.childCount) {
             val levelButtonView = levelContainer.getChildAt(i)
             val level = i + 1
-            val passed = levelStatus[level] == true
+            val passed = levelStatus[level]
 
             val levelButton: Button = levelButtonView.findViewById(R.id.level_button)
             val statusIcon: ImageView = levelButtonView.findViewById(R.id.level_status_icon)
 
-            if (passed) {
-                levelButton.setBackgroundColor(ContextCompat.getColor(this, R.color.green))
-                statusIcon.setImageResource(R.drawable.ic_star)
-                statusIcon.visibility = View.VISIBLE
-            } else {
-                // Reset to default state if not passed
-                levelButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.celestial_blue)
-                statusIcon.visibility = View.GONE
+            when (passed) {
+                true -> {
+                    levelButton.setBackgroundColor(ContextCompat.getColor(this, R.color.green))
+                    statusIcon.setImageResource(R.drawable.ic_star)
+                    statusIcon.visibility = View.VISIBLE
+                }
+                false -> {
+                    levelButton.setBackgroundColor(ContextCompat.getColor(this, R.color.red))
+                    statusIcon.setImageResource(R.drawable.ic_star_gray)
+                    statusIcon.visibility = View.VISIBLE
+                }
+                null -> {
+                    levelButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.celestial_blue)
+                    statusIcon.visibility = View.GONE
+                }
             }
         }
     }
@@ -99,7 +104,9 @@ class SkillActivity : AppCompatActivity() {
         val sharedPref = getSharedPreferences("LevelStatus", Context.MODE_PRIVATE) ?: return
         with(sharedPref.edit()) {
             levelStatus.forEach { (level, passed) ->
-                putBoolean("${skillName}_$level", passed)
+                if (passed != null) {
+                    putBoolean("${skillName}_${level}_passed", passed)
+                }
             }
             apply()
         }
@@ -108,9 +115,8 @@ class SkillActivity : AppCompatActivity() {
     private fun loadLevelStatus() {
         val sharedPref = getSharedPreferences("LevelStatus", Context.MODE_PRIVATE) ?: return
         for (i in 1..10) {
-            val passed = sharedPref.getBoolean("${skillName}_$i", false)
-            if (passed) {
-                levelStatus[i] = true
+            if (sharedPref.contains("${skillName}_${i}_passed")) {
+                levelStatus[i] = sharedPref.getBoolean("${skillName}_${i}_passed", false)
             }
         }
     }

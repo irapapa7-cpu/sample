@@ -48,7 +48,13 @@ class QuizActivity : AppCompatActivity() {
         progressKey = "$skillName-$level"
 
         questions = when (skillName) {
-            "Introduction to IT" -> IntroToITQuiz.questions
+            "Introduction to IT" -> {
+                if (level > 0 && level <= IntroToITQuiz.questions.size) {
+                    listOf(IntroToITQuiz.questions[level - 1])
+                } else {
+                    emptyList()
+                }
+            }
             "Basic Computer Hardware" -> BasicHardwareQuiz.questions
             "Operating Systems" -> OperatingSystemsQuiz.questions
             "Introduction to Programming" -> IntroductionToProgrammingQuiz.questions
