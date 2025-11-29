@@ -26,8 +26,8 @@ class QuizActivity : AppCompatActivity() {
     private lateinit var questionNumberTextView: TextView
     private lateinit var questionTextView: TextView
     private lateinit var optionsRadioGroup: RadioGroup
-    private lateinit var homeButton: Button
-    private lateinit var submitButton: Button
+    private lateinit var backButton: Button
+    private lateinit var nextButton: Button
     private lateinit var questionImageView: ImageView
     private lateinit var saveButton: ImageButton
 
@@ -47,27 +47,18 @@ class QuizActivity : AppCompatActivity() {
         level = intent.getIntExtra("LEVEL", 1)
         progressKey = "$skillName-$level"
 
-        questions = when (skillName) {
-            "Introduction to IT" -> {
-                if (level > 0 && level <= IntroToITQuiz.questions.size) {
-                    listOf(IntroToITQuiz.questions[level - 1])
-                } else {
-                    emptyList()
-                }
-            }
-            "Basic Computer Hardware" -> BasicHardwareQuiz.questions
-            "Operating Systems" -> OperatingSystemsQuiz.questions
-            "Introduction to Programming" -> IntroductionToProgrammingQuiz.questions
-            "HTML Basics" -> HtmlBasicsQuiz.questions
-            "CSS Basics" -> CssBasicsQuiz.questions
-            else -> emptyList()
+        val allQuestions = getQuestionsForSkill(skillName)
+        questions = if (level > 0 && level <= allQuestions.size) {
+            listOf(allQuestions[level - 1])
+        } else {
+            emptyList()
         }
 
         questionNumberTextView = findViewById(R.id.question_number_text)
         questionTextView = findViewById(R.id.question_text)
         optionsRadioGroup = findViewById(R.id.options_radio_group)
-        homeButton = findViewById(R.id.home_button)
-        submitButton = findViewById(R.id.submit_button)
+        backButton = findViewById(R.id.home_button)
+        nextButton = findViewById(R.id.submit_button)
         questionImageView = findViewById(R.id.question_image)
         saveButton = findViewById(R.id.imageButton)
 
@@ -84,11 +75,21 @@ class QuizActivity : AppCompatActivity() {
             finish()
         }
 
-        // *** CRITICAL FIX: The back button should go back, not home ***
-        homeButton.setOnClickListener { finish() } // Changed from goToHome()
-
-        submitButton.setOnClickListener { handleSubmit() }
+        backButton.setOnClickListener { moveToPreviousQuestion() }
+        nextButton.setOnClickListener { moveToNextQuestion() }
         saveButton.setOnClickListener { saveProgress(true) }
+    }
+
+    private fun getQuestionsForSkill(skillName: String): List<Question> {
+        return when (skillName) {
+            "Introduction to IT" -> IntroToITQuiz.questions
+            "Basic Computer Hardware" -> BasicHardwareQuiz.questions
+            "Operating Systems" -> OperatingSystemsQuiz.questions
+            "Introduction to Programming" -> IntroductionToProgrammingQuiz.questions
+            "HTML Basics" -> HtmlBasicsQuiz.questions
+            "CSS Basics" -> CssBasicsQuiz.questions
+            else -> emptyList()
+        }
     }
 
     override fun onPause() {
@@ -103,7 +104,7 @@ class QuizActivity : AppCompatActivity() {
         val savedAnswer = sharedPref.getInt(getAnswerKey(currentQuestionIndex), -1)
         val isQuestionAlreadyAnswered = savedAnswer != -1
 
-        questionNumberTextView.text = "${currentQuestionIndex + 1}/${questions.size}"
+        questionNumberTextView.text = "$level/10"
         questionTextView.text = question.text
 
         if (question.imageResId != null) {
@@ -123,38 +124,25 @@ class QuizActivity : AppCompatActivity() {
             val layoutParams = RadioGroup.LayoutParams(RadioGroup.LayoutParams.MATCH_PARENT, RadioGroup.LayoutParams.WRAP_CONTENT)
             radioButton.layoutParams = layoutParams
             optionsRadioGroup.addView(radioButton)
+
+            radioButton.setOnClickListener { handleAnswer(index) }
         }
+
+        nextButton.text = "Next"
 
         if (isQuestionAlreadyAnswered) {
             optionsRadioGroup.check(savedAnswer)
             setOptionsEnabled(false)
-            submitButton.text = "Next"
         } else {
             optionsRadioGroup.clearCheck()
             setOptionsEnabled(true)
-            submitButton.text = "Submit"
         }
     }
 
-    private fun handleSubmit() {
-        val sharedPref = getSharedPreferences("QuizProgress", Context.MODE_PRIVATE)
-        val savedAnswer = sharedPref.getInt(getAnswerKey(currentQuestionIndex), -1)
-        val isQuestionAlreadyAnswered = savedAnswer != -1
+    private fun handleAnswer(selectedIndex: Int) {
+        saveAnswer(selectedIndex)
 
-        if (isQuestionAlreadyAnswered) {
-            moveToNextQuestion()
-            return
-        }
-
-        val checkedRadioButtonId = optionsRadioGroup.checkedRadioButtonId
-        if (checkedRadioButtonId == -1) {
-            Toast.makeText(this, "Please select an answer.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        saveAnswer(checkedRadioButtonId)
-
-        val correct = checkedRadioButtonId == questions[currentQuestionIndex].correctAnswerIndex
+        val correct = selectedIndex == questions[currentQuestionIndex].correctAnswerIndex
         if (correct) {
             Toast.makeText(this, "Correct!", Toast.LENGTH_SHORT).show()
         } else {
@@ -162,17 +150,31 @@ class QuizActivity : AppCompatActivity() {
         }
 
         setOptionsEnabled(false)
-        submitButton.text = "Next"
 
         optionsRadioGroup.postDelayed({ moveToNextQuestion() }, 1200)
     }
 
     private fun moveToNextQuestion() {
-        if (currentQuestionIndex < questions.size - 1) {
-            currentQuestionIndex++
-            displayQuestion(questions[currentQuestionIndex])
+        if (level < 10) {
+            val intent = Intent(this, QuizActivity::class.java)
+            intent.putExtra("SKILL_NAME", skillName)
+            intent.putExtra("LEVEL", level + 1)
+            startActivity(intent)
+            finish()
         } else {
             handleQuizCompletion()
+        }
+    }
+
+    private fun moveToPreviousQuestion() {
+        if (level > 1) {
+            val intent = Intent(this, QuizActivity::class.java)
+            intent.putExtra("SKILL_NAME", skillName)
+            intent.putExtra("LEVEL", level - 1)
+            startActivity(intent)
+            finish()
+        } else {
+            finish()
         }
     }
 
@@ -218,13 +220,6 @@ class QuizActivity : AppCompatActivity() {
         for (i in 0 until optionsRadioGroup.childCount) {
             optionsRadioGroup.getChildAt(i).isEnabled = enabled
         }
-    }
-
-    private fun goToHome() {
-        saveProgress(false)
-        val intent = Intent(this, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        startActivity(intent)
     }
 
     private fun getProgressKey(): String = "${progressKey}_progress"

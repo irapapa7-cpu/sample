@@ -28,6 +28,31 @@ object IntroToITQuiz {
             text = "What does 'IT' stand for?",
             options = listOf("Internet Technology", "Information Technology", "Intelligent Technology"),
             correctAnswerIndex = 1
+        ),
+        Question(
+            text = "What is the programming language for machine learning?",
+            options = listOf("Java", "HTML", "CSS", "Python"),
+            correctAnswerIndex = 3
+        ),
+        Question(
+            text = "What is the largest network in the world?",
+            options = listOf("LAN", "MAN", "WAN", "Internet"),
+            correctAnswerIndex = 3
+        ),
+        Question(
+            text = "What do we call a group of connected computers?",
+            options = listOf("Database", "Server", "Network", "Software"),
+            correctAnswerIndex = 2
+        ),
+        Question(
+            text = "Which term refers to protecting computers from threats?",
+            options = listOf("Encoding", "Cybersecurity", "Formatting", "Debugging"),
+            correctAnswerIndex = 1
+        ),
+        Question(
+            text = "What is the main function of an operating system?",
+            options = listOf("To draw graphics", "To manage computer programs and hardware", "To delete viruses", "To connect to the internet"),
+            correctAnswerIndex = 1
         )
     )
 }
