@@ -7,12 +7,6 @@
     android:background="#8C9EC1"
     tools:context=".QuizActivity">
 
-    <!-- The Save button is constrained to the top-right corner -->
-
-    <!-- Question number is constrained to the top-center -->
-
-    <!-- Question text is constrained below the question number -->
-
     <ImageButton
         android:id="@+id/imageButton"
         android:layout_width="48dp"
@@ -21,7 +15,7 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/save_progress"
         android:scaleType="fitCenter"
-        app:layout_constraintBottom_toTopOf="@+id/submit_button"
+        app:layout_constraintBottom_toTopOf="@+id/home_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.098"
@@ -56,7 +50,6 @@
         app:layout_constraintTop_toBottomOf="@+id/question_number_text"
         tools:text="Question text goes here" />
 
-    <!-- Question image is constrained below the question text -->
     <ImageView
         android:id="@+id/question_image"
         android:layout_width="0dp"
@@ -71,12 +64,11 @@
         app:layout_constraintTop_toBottomOf="@+id/question_text"
         tools:src="@mipmap/ic_launcher" />
 
-    <!-- Bottom buttons are constrained to the bottom of the screen -->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/home_button"
+        android:id="@+id/back_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
+        android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         android:text="@string/back_button_text"
         app:backgroundTint="@color/celestial_blue"
@@ -85,18 +77,29 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/submit_button"
+        android:id="@+id/home_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
         android:layout_marginBottom="16dp"
-        android:text="@string/submit_button_text"
+        android:text="@string/home_button_text"
+        app:backgroundTint="@color/celestial_blue"
+        app:cornerRadius="14dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/next_button"
+        app:layout_constraintStart_toEndOf="@+id/back_button" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/next_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/next_button_text"
         app:backgroundTint="@color/celestial_blue"
         app:cornerRadius="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- ScrollView fills the space between the image and the bottom buttons -->
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -117,7 +120,6 @@
             android:layout_height="wrap_content"
             android:padding="8dp">
 
-            <!-- RadioButton text can now expand freely -->
             <RadioButton
                 android:id="@+id/option1_radio_button"
                 android:layout_width="match_parent"

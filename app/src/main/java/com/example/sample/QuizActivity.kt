@@ -27,17 +27,16 @@ class QuizActivity : AppCompatActivity() {
     private lateinit var questionTextView: TextView
     private lateinit var optionsRadioGroup: RadioGroup
     private lateinit var backButton: Button
+    private lateinit var homeButton: Button
     private lateinit var nextButton: Button
     private lateinit var questionImageView: ImageView
     private lateinit var saveButton: ImageButton
 
-    private var currentQuestionIndex = 0
     private lateinit var questions: List<Question>
-    private var isQuizComplete = false
+    private var isAnswered = false
 
     private lateinit var skillName: String
     private var level: Int = 1
-    private lateinit var progressKey: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +44,6 @@ class QuizActivity : AppCompatActivity() {
 
         skillName = intent.getStringExtra("SKILL_NAME") ?: ""
         level = intent.getIntExtra("LEVEL", 1)
-        progressKey = "$skillName-$level"
 
         val allQuestions = getQuestionsForSkill(skillName)
         questions = if (level > 0 && level <= allQuestions.size) {
@@ -57,27 +55,23 @@ class QuizActivity : AppCompatActivity() {
         questionNumberTextView = findViewById(R.id.question_number_text)
         questionTextView = findViewById(R.id.question_text)
         optionsRadioGroup = findViewById(R.id.options_radio_group)
-        backButton = findViewById(R.id.home_button)
-        nextButton = findViewById(R.id.submit_button)
+        backButton = findViewById(R.id.back_button)
+        homeButton = findViewById(R.id.home_button)
+        nextButton = findViewById(R.id.next_button)
         questionImageView = findViewById(R.id.question_image)
         saveButton = findViewById(R.id.imageButton)
 
-        loadProgress()
-
-        if (currentQuestionIndex >= questions.size) {
-            currentQuestionIndex = 0
-        }
-
         if (questions.isNotEmpty()) {
-            displayQuestion(questions[currentQuestionIndex])
+            displayQuestion(questions.first())
         } else {
             Toast.makeText(this, "No questions available for this skill yet.", Toast.LENGTH_LONG).show()
             finish()
         }
 
         backButton.setOnClickListener { moveToPreviousQuestion() }
+        homeButton.setOnClickListener { goToSkillActivity() } // Changed to go to SkillActivity
         nextButton.setOnClickListener { moveToNextQuestion() }
-        saveButton.setOnClickListener { saveProgress(true) }
+        saveButton.setOnClickListener { /* Save logic can be added here if needed */ }
     }
 
     private fun getQuestionsForSkill(skillName: String): List<Question> {
@@ -92,18 +86,7 @@ class QuizActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        if (!isQuizComplete) {
-            saveProgress(false)
-        }
-    }
-
     private fun displayQuestion(question: Question) {
-        val sharedPref = getSharedPreferences("QuizProgress", Context.MODE_PRIVATE)
-        val savedAnswer = sharedPref.getInt(getAnswerKey(currentQuestionIndex), -1)
-        val isQuestionAlreadyAnswered = savedAnswer != -1
-
         questionNumberTextView.text = "$level/10"
         questionTextView.text = question.text
 
@@ -120,29 +103,26 @@ class QuizActivity : AppCompatActivity() {
             radioButton.text = option
             radioButton.id = index
             radioButton.textSize = 18f
-
-            val layoutParams = RadioGroup.LayoutParams(RadioGroup.LayoutParams.MATCH_PARENT, RadioGroup.LayoutParams.WRAP_CONTENT)
-            radioButton.layoutParams = layoutParams
             optionsRadioGroup.addView(radioButton)
-
             radioButton.setOnClickListener { handleAnswer(index) }
-        }
-
-        nextButton.text = "Next"
-
-        if (isQuestionAlreadyAnswered) {
-            optionsRadioGroup.check(savedAnswer)
-            setOptionsEnabled(false)
-        } else {
-            optionsRadioGroup.clearCheck()
-            setOptionsEnabled(true)
         }
     }
 
     private fun handleAnswer(selectedIndex: Int) {
-        saveAnswer(selectedIndex)
+        if (isAnswered) return
+        isAnswered = true
 
-        val correct = selectedIndex == questions[currentQuestionIndex].correctAnswerIndex
+        val correct = selectedIndex == questions.first().correctAnswerIndex
+        
+        // Save the result immediately to SharedPreferences
+        saveLevelResult(correct)
+
+        // Set the result for SkillActivity to receive
+        val resultIntent = Intent()
+        resultIntent.putExtra("level", level)
+        resultIntent.putExtra("passed", correct)
+        setResult(Activity.RESULT_OK, resultIntent)
+
         if (correct) {
             Toast.makeText(this, "Correct!", Toast.LENGTH_SHORT).show()
         } else {
@@ -154,16 +134,23 @@ class QuizActivity : AppCompatActivity() {
         optionsRadioGroup.postDelayed({ moveToNextQuestion() }, 1200)
     }
 
+    private fun saveLevelResult(passed: Boolean) {
+        val sharedPref = getSharedPreferences("LevelStatus", Context.MODE_PRIVATE) ?: return
+        with(sharedPref.edit()) {
+            val key = "${skillName}_level_${level}_passed"
+            putBoolean(key, passed)
+            apply()
+        }
+    }
+
     private fun moveToNextQuestion() {
         if (level < 10) {
             val intent = Intent(this, QuizActivity::class.java)
             intent.putExtra("SKILL_NAME", skillName)
             intent.putExtra("LEVEL", level + 1)
             startActivity(intent)
-            finish()
-        } else {
-            handleQuizCompletion()
         }
+        finish()
     }
 
     private fun moveToPreviousQuestion() {
@@ -172,48 +159,8 @@ class QuizActivity : AppCompatActivity() {
             intent.putExtra("SKILL_NAME", skillName)
             intent.putExtra("LEVEL", level - 1)
             startActivity(intent)
-            finish()
-        } else {
-            finish()
         }
-    }
-
-    private fun handleQuizCompletion() {
-        isQuizComplete = true
-        val sharedPref = getSharedPreferences("QuizProgress", Context.MODE_PRIVATE)
-        var score = 0
-        for (i in questions.indices) {
-            val savedAnswer = sharedPref.getInt(getAnswerKey(i), -1)
-            if (savedAnswer != -1 && savedAnswer == questions[i].correctAnswerIndex) {
-                score++
-            }
-        }
-
-        val percentage = if (questions.isNotEmpty()) (score.toDouble() / questions.size.toDouble()) * 100 else 0.0
-        val passed = percentage >= 80
-
-        val resultIntent = Intent()
-        resultIntent.putExtra("level", level)
-        resultIntent.putExtra("passed", passed)
-        setResult(Activity.RESULT_OK, resultIntent)
-
-        if (!passed) {
-            Toast.makeText(this, "Level failed. Try again!", Toast.LENGTH_LONG).show()
-            clearLevelProgress()
-        }
-
         finish()
-    }
-
-    private fun clearLevelProgress() {
-        val sharedPref = getSharedPreferences("QuizProgress", Context.MODE_PRIVATE) ?: return
-        with(sharedPref.edit()) {
-            remove(getProgressKey())
-            for (i in questions.indices) {
-                remove(getAnswerKey(i))
-            }
-            commit()
-        }
     }
 
     private fun setOptionsEnabled(enabled: Boolean) {
@@ -222,30 +169,11 @@ class QuizActivity : AppCompatActivity() {
         }
     }
 
-    private fun getProgressKey(): String = "${progressKey}_progress"
-    private fun getAnswerKey(questionIndex: Int): String = "${progressKey}_answer_$questionIndex"
-
-    private fun saveAnswer(answerIndex: Int) {
-        val sharedPref = getSharedPreferences("QuizProgress", Context.MODE_PRIVATE) ?: return
-        with(sharedPref.edit()) {
-            putInt(getAnswerKey(currentQuestionIndex), answerIndex)
-            apply()
-        }
-    }
-
-    private fun saveProgress(showToast: Boolean) {
-        val sharedPref = getSharedPreferences("QuizProgress", Context.MODE_PRIVATE) ?: return
-        with(sharedPref.edit()) {
-            putInt(getProgressKey(), currentQuestionIndex)
-            apply()
-        }
-        if (showToast) {
-            Toast.makeText(this, "Progress saved!", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun loadProgress() {
-        val sharedPref = getSharedPreferences("QuizProgress", Context.MODE_PRIVATE) ?: return
-        currentQuestionIndex = sharedPref.getInt(getProgressKey(), 0)
+    private fun goToSkillActivity() {
+        val intent = Intent(this, SkillActivity::class.java)
+        intent.putExtra("SKILL_NAME", skillName)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        startActivity(intent)
+        finish()
     }
 }

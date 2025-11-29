@@ -4,6 +4,8 @@
     <string name="logo_image_desc">Brain logo</string>
     <string name="submit_button_text">Submit</string>
     <string name="back_button_text">Back</string>
+    <string name="home_button_text">Home</string>
+    <string name="next_button_text">Next</string>
     <string name="save_progress">Save Progress</string>
     <string name="todo">TODO</string>
     <string name="back">Back</string>

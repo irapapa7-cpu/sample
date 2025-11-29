@@ -1,6 +1,7 @@
 package com.example.sample.data
 
 import com.example.sample.models.Question
+import com.example.sample.R
 
 object BasicHardwareQuiz {
     val questions = listOf(
@@ -31,18 +32,20 @@ object BasicHardwareQuiz {
         ),
         Question(
             text = "Which language is used for styling web?",
-            options = listOf("Python", "Css", "Java", "D.C++"),
+            options = listOf("Python", "CSS", "Java", "C++"),
             correctAnswerIndex = 1
         ),
         Question(
-            text = "What part of computer is this?",
+            text = "What part of the computer is this?",
             options = listOf("RAM", "CPU", "Motherboard", "Hard Drive"),
             correctAnswerIndex = 1
+            //, imageResId = R.drawable.cpu_image // Add cpu_image.png to drawable and uncomment this line
         ),
         Question(
             text = "Based on the photo, what appears to be the main problem in his computer?",
             options = listOf("Not enough RAM", "CPU is overheating", "System process is using too much CPU", "Too many applications are open"),
             correctAnswerIndex = 2
+            //, imageResId = R.drawable.task_manager_image // Add task_manager_image.png to drawable and uncomment this line
         ),
         Question(
             text = "What does \"IT\" stands for?",
@@ -50,9 +53,10 @@ object BasicHardwareQuiz {
             correctAnswerIndex = 1
         ),
         Question(
-            text = "A user complain that their monitor is black, but the PC's power light is on. What is the first thing you should check?",
-            options = listOf("The computer is unplugged", "The monitor's power cable is loose", "The operating system has crashed", "The graphics card is broken"),
+            text = "A user complains that their monitor is black, but the PC's power light is on. What is the first thing you should check?",
+            options = listOf("Buy a new monitor and call a friend.", "Check for loose connections.", "Be angry and nag the user.", "Panic and push all the buttons."),
             correctAnswerIndex = 1
+            //, imageResId = R.drawable.monitor_image // Add monitor_image.png to drawable and uncomment this line
         )
     )
 }

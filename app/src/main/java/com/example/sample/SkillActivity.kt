@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -25,23 +24,26 @@ class SkillActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_skill)
 
-        // The default action bar is hidden, so this is no longer needed.
-        // supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
         skillName = intent.getStringExtra("SKILL_NAME") ?: ""
         val skillTitle: TextView = findViewById(R.id.skill_title)
         skillTitle.text = skillName
 
         levelContainer = findViewById(R.id.level_container)
 
-        // Find and set up the back button
         val backButton: Button = findViewById(R.id.back_button)
         backButton.setOnClickListener {
-            finish() // Close this activity and go back
+            finish()
         }
 
         loadLevelStatus()
         createLevelButtons()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh buttons when returning to this screen
+        loadLevelStatus()
+        updateLevelButtons()
     }
 
     private fun createLevelButtons() {
@@ -65,10 +67,13 @@ class SkillActivity : AppCompatActivity() {
         if (result.resultCode == Activity.RESULT_OK) {
             val data = result.data
             val level = data?.getIntExtra("level", 0) ?: 0
-            val passed = data?.getBooleanExtra("passed", false) ?: false
-            levelStatus[level] = passed
-            saveLevelStatus()
-            updateLevelButtons()
+            // The 'passed' extra should be checked for existence
+            if (data?.hasExtra("passed") == true && level > 0) {
+                val passed = data.getBooleanExtra("passed", false)
+                levelStatus[level] = passed
+                saveLevelStatus()
+                updateLevelButtons()
+            }
         }
     }
 
@@ -83,12 +88,12 @@ class SkillActivity : AppCompatActivity() {
 
             when (passed) {
                 true -> {
-                    levelButton.setBackgroundColor(ContextCompat.getColor(this, R.color.green))
+                    levelButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.green)
                     statusIcon.setImageResource(R.drawable.ic_star)
                     statusIcon.visibility = View.VISIBLE
                 }
                 false -> {
-                    levelButton.setBackgroundColor(ContextCompat.getColor(this, R.color.red))
+                    levelButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.red)
                     statusIcon.setImageResource(R.drawable.ic_star_gray)
                     statusIcon.visibility = View.VISIBLE
                 }
@@ -103,9 +108,13 @@ class SkillActivity : AppCompatActivity() {
     private fun saveLevelStatus() {
         val sharedPref = getSharedPreferences("LevelStatus", Context.MODE_PRIVATE) ?: return
         with(sharedPref.edit()) {
+            // Save status for the current skill only
             levelStatus.forEach { (level, passed) ->
+                val key = "${skillName}_level_${level}_passed"
                 if (passed != null) {
-                    putBoolean("${skillName}_${level}_passed", passed)
+                    putBoolean(key, passed)
+                } else {
+                    remove(key)
                 }
             }
             apply()
@@ -114,21 +123,12 @@ class SkillActivity : AppCompatActivity() {
 
     private fun loadLevelStatus() {
         val sharedPref = getSharedPreferences("LevelStatus", Context.MODE_PRIVATE) ?: return
+        levelStatus.clear()
         for (i in 1..10) {
-            if (sharedPref.contains("${skillName}_${i}_passed")) {
-                levelStatus[i] = sharedPref.getBoolean("${skillName}_${i}_passed", false)
+            val key = "${skillName}_level_${i}_passed"
+            if (sharedPref.contains(key)) {
+                levelStatus[i] = sharedPref.getBoolean(key, false)
             }
         }
     }
-
-    // This is no longer needed as we have a custom back button
-    /*
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-    */
 }
