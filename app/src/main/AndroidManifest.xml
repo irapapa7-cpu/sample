@@ -12,7 +12,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Sample">
 
-        <!-- CRITICAL FIX: Changed theme to make it a full screen activity -->
         <activity
             android:name=".EndingDialogActivity"
             android:exported="false"
@@ -54,6 +53,7 @@
             android:exported="false" />
         <activity android:name=".SkillActivity" />
         <activity android:name=".QuizActivity" />
+        <activity android:name=".DashboardActivity" />
 
         <meta-data
             android:name="preloaded_fonts"

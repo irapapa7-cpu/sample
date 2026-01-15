@@ -20,7 +20,6 @@ class MainActivity : AppCompatActivity() {
 
         val resetButton: Button = findViewById(R.id.reset_button)
         resetButton.setOnClickListener {
-            // *** CRITICAL FIX: Clear all five save files for a full factory reset ***
             getSharedPreferences("LevelStatus", Context.MODE_PRIVATE).edit().clear().commit()
             getSharedPreferences("TopicStatus", Context.MODE_PRIVATE).edit().clear().commit()
             getSharedPreferences("WrongAnswers", Context.MODE_PRIVATE).edit().clear().commit()
@@ -29,8 +28,14 @@ class MainActivity : AppCompatActivity() {
 
             Toast.makeText(this, "All progress has been reset.", Toast.LENGTH_SHORT).show()
 
-            // Recreate the activity to refresh the UI
             recreate()
+        }
+
+        val backButton: Button = findViewById(R.id.back_button)
+        backButton.setOnClickListener {
+            val intent = Intent(this, DashboardActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 

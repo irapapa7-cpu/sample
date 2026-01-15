@@ -17,10 +17,12 @@
         android:textAlignment="center"
         android:textAppearance="?attr/textAppearanceHeadline5"
         android:textColor="@color/celestial_blue"
+        android:textSize="48sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="GOOD LUCK ON YOUR JOURNEY FUTURE IT" />
+        tools:text="Good! luck on your journey Future IT"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

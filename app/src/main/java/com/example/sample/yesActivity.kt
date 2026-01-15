@@ -15,9 +15,9 @@ class YesActivity : AppCompatActivity() {
         val userChoice = intent.getStringExtra("USER_CHOICE")
 
         val message = if (userChoice == "Yes") {
-            "GOOD LUCK ON YOUR JOURNEY FUTURE IT"
+            "Good! luck on your journey Future IT"
         } else {
-            "GOOD LUCK IN FINDING YOUR PATH"
+            "Good luck in finding your path."
         }
 
         finalMessageTextView.text = message

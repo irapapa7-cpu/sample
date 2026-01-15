@@ -2,6 +2,7 @@ package com.example.sample
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -90,13 +91,27 @@ class QuizActivity : AppCompatActivity() {
         optionsRadioGroup.removeAllViews()
         optionsRadioGroup.setOnCheckedChangeListener(null)
 
-        val customFont = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.blueberry_personal)
+        val customFont = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.roboto_bold)
+
+        // *** CRITICAL FIX: Create a ColorStateList for the RadioButton tint ***
+        val colorStateList = ColorStateList(
+            arrayOf(
+                intArrayOf(-android.R.attr.state_checked), // Unchecked
+                intArrayOf(android.R.attr.state_checked)  // Checked
+            ),
+            intArrayOf(
+                ContextCompat.getColor(this, android.R.color.darker_gray), // Default color for unchecked
+                ContextCompat.getColor(this, R.color.celestial_blue)     // celestial_blue for checked
+            )
+        )
+
         question.options.forEachIndexed { index, option ->
             val radioButton = RadioButton(this)
             radioButton.text = option
             radioButton.id = index
             radioButton.textSize = 23f
             radioButton.typeface = customFont
+            radioButton.buttonTintList = colorStateList // Apply the tint
             val layoutParams = RadioGroup.LayoutParams(RadioGroup.LayoutParams.MATCH_PARENT, RadioGroup.LayoutParams.WRAP_CONTENT)
             radioButton.layoutParams = layoutParams
             optionsRadioGroup.addView(radioButton)
@@ -169,7 +184,7 @@ class QuizActivity : AppCompatActivity() {
             val wrongAnswers = getWrongAnswers(currentQuestionIndex)
 
             if (newAttemptCount >= 2) {
-                savePassedStatus(currentQuestionIndex, false) 
+                savePassedStatus(currentQuestionIndex, false)
                 showAnswerFeedback(wrongAnswers, question.correctAnswerIndex, showCorrect = true)
                 setOptionsEnabled(false)
                 attemptCounterTextView.text = "Attempts: 2/2"
@@ -212,8 +227,7 @@ class QuizActivity : AppCompatActivity() {
         if (currentQuestionIndex < questions.size - 1) {
             navigateToQuestion(currentQuestionIndex + 1)
         } else {
-            // *** CRITICAL FIX: Simply finish the activity. Do not check for completion here. ***
-            finish()
+            finish() // Let SkillActivity handle completion
         }
     }
 
