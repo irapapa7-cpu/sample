@@ -13,6 +13,11 @@
         android:theme="@style/Theme.Sample">
 
         <activity
+            android:name=".ScoreActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Sample.Dialog" />
+
+        <activity
             android:name=".EndingDialogActivity"
             android:exported="false"
             android:theme="@style/Theme.Sample" />

@@ -12,17 +12,11 @@ class YesActivity : AppCompatActivity() {
 
         val finalMessageTextView = findViewById<TextView>(R.id.final_message_text)
         val rootLayout = findViewById<ConstraintLayout>(R.id.root_layout)
-        val userChoice = intent.getStringExtra("USER_CHOICE")
 
-        val message = if (userChoice == "Yes") {
-            "Good! luck on your journey Future IT"
-        } else {
-            "Good luck in finding your path."
-        }
+        // *** CRITICAL FIX: Get the combined message from the Intent and display it ***
+        val combinedMessage = intent.getStringExtra("USER_CHOICE")
+        finalMessageTextView.text = combinedMessage
 
-        finalMessageTextView.text = message
-
-        // *** CRITICAL FIX: Make the screen exitable on tap ***
         rootLayout.setOnClickListener {
             finish()
         }

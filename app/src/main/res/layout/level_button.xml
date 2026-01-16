@@ -14,7 +14,7 @@
         android:textAllCaps="true"
         android:textSize="30sp"
         app:backgroundTint="@color/celestial_blue"
-        app:cornerRadius="18dp"
+        app:cornerRadius="17dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"

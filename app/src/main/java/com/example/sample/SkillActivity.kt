@@ -9,7 +9,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 
@@ -38,9 +37,17 @@ class SkillActivity : AppCompatActivity() {
             finish()
         }
 
-        val resetButton: Button = findViewById(R.id.reset_button)
-        resetButton.setOnClickListener {
-            resetCurrentTopicProgress()
+        val scoreButton: Button = findViewById(R.id.reset_button) // This is the 'Score' button
+        scoreButton.setOnClickListener {
+            val score = levelStatus.values.count { it == true }
+            val percentage = ((score.toDouble() / 10.0) * 100).toInt()
+
+            val intent = Intent(this, ScoreActivity::class.java).apply {
+                putExtra("SKILL_NAME", skillName)
+                putExtra("SCORE", score)
+                putExtra("PERCENTAGE", percentage)
+            }
+            startActivity(intent)
         }
 
         createLevelButtons()
@@ -52,7 +59,6 @@ class SkillActivity : AppCompatActivity() {
         updateLevelButtons()
         updateScoreDisplay()
         updatePercentageDisplay()
-        // *** CRITICAL FIX: The completion check now only happens here ***
         checkTopicCompletion()
     }
 
@@ -118,7 +124,6 @@ class SkillActivity : AppCompatActivity() {
         }
     }
 
-    // *** The correct, centralized completion logic ***
     private fun checkTopicCompletion() {
         val topicStatusPrefs = getSharedPreferences("TopicStatus", Context.MODE_PRIVATE)
         val hasBeenShown = topicStatusPrefs.getBoolean(skillName, false)
@@ -129,43 +134,26 @@ class SkillActivity : AppCompatActivity() {
                 val score = levelStatus.values.count { it == true }
                 val percentage = (score.toDouble() / 10.0) * 100
 
-                if (percentage >= 80) {
-                    startActivity(Intent(this, CompleteActivity::class.java))
+                val intent = if (percentage >= 80) {
+                    Intent(this, CompleteActivity::class.java)
                 } else {
-                    startActivity(Intent(this, FailedActivity::class.java))
+                    Intent(this, FailedActivity::class.java)
                 }
 
-                // Set the flag to prevent it from showing again
+                // *** CRITICAL FIX: Pass the score info to the next screen ***
+                intent.apply {
+                    putExtra("SKILL_NAME", skillName)
+                    putExtra("SCORE", score)
+                    putExtra("PERCENTAGE", percentage.toInt())
+                }
+                startActivity(intent)
+
                 with(topicStatusPrefs.edit()) {
                     putBoolean(skillName, true)
                     commit()
                 }
             }
         }
-    }
-
-    private fun resetCurrentTopicProgress() {
-        val levelStatusPrefs = getSharedPreferences("LevelStatus", Context.MODE_PRIVATE).edit()
-        val topicStatusPrefs = getSharedPreferences("TopicStatus", Context.MODE_PRIVATE).edit()
-        val wrongAnswersPrefs = getSharedPreferences("WrongAnswers", Context.MODE_PRIVATE).edit()
-        val attemptCounterPrefs = getSharedPreferences("AttemptCounter", Context.MODE_PRIVATE).edit()
-
-        for (i in 1..10) {
-            levelStatusPrefs.remove("${skillName}_${i}_passed")
-            wrongAnswersPrefs.remove("${skillName}_${i}_wrong_answers")
-            attemptCounterPrefs.remove("${skillName}_${i}_attempts")
-        }
-
-        topicStatusPrefs.remove(skillName)
-
-        levelStatusPrefs.apply()
-        topicStatusPrefs.apply()
-        wrongAnswersPrefs.apply()
-        attemptCounterPrefs.apply()
-
-        Toast.makeText(this, "Progress for '$skillName' has been reset.", Toast.LENGTH_SHORT).show()
-
-        recreate()
     }
 
     private fun loadLevelStatus() {

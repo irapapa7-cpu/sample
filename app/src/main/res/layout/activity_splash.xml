@@ -11,8 +11,8 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button"
-        android:layout_width="240dp"
-        android:layout_height="80dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:fontFamily="@font/blueberry_personal"
         android:text="@string/button_text"
         android:textAllCaps="true"

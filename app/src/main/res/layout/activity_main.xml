@@ -21,7 +21,7 @@
         android:textColor="#F8F8F8"
         android:textSize="20sp"
         app:backgroundTint="#571919"
-        app:cornerRadius="14dp"
+        app:cornerRadius="17dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -35,7 +35,7 @@
         android:text="@string/back_button_text"
         android:textSize="20sp"
         app:backgroundTint="@color/celestial_blue"
-        app:cornerRadius="12dp"
+        app:cornerRadius="17dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

@@ -88,8 +88,10 @@
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/blueberry_personal"
-        android:text="@string/previous"
+        android:textSize="20sp"
+        android:text="@string/back_button_text"
         app:backgroundTint="@color/celestial_blue"
+        app:cornerRadius="17dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -100,7 +102,9 @@
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/blueberry_personal"
         android:text="@string/back_to_levels"
+        android:textSize="20sp"
         app:backgroundTint="@color/celestial_blue"
+        app:cornerRadius="17dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/next_level_button"
         app:layout_constraintStart_toEndOf="@+id/previous_level_button" />
@@ -112,7 +116,9 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/blueberry_personal"
+        android:textSize="20sp"
         android:text="@string/next"
+        app:cornerRadius="17dp"
         app:backgroundTint="@color/celestial_blue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
