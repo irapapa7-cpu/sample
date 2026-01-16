@@ -35,7 +35,7 @@
                 android:textSize="20sp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imageView5"
+                app:layout_constraintEnd_toStartOf="@+id/profile_image_card"
                 app:layout_constraintBottom_toTopOf="@+id/knowledge_level" />
 
             <TextView
@@ -45,17 +45,26 @@
                 android:text="@string/knowledge_level_brain_rot"
                 app:layout_constraintTop_toBottomOf="@+id/username"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imageView5"
+                app:layout_constraintEnd_toStartOf="@+id/profile_image_card"
                 app:layout_constraintBottom_toBottomOf="parent"/>
 
-            <ImageView
-                android:id="@+id/imageView5"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/profile_image_card"
                 android:layout_width="70dp"
                 android:layout_height="70dp"
+                app:cardCornerRadius="35dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                tools:srcCompat="@tools:sample/avatars" />
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <ImageView
+                    android:id="@+id/imageView5"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    tools:srcCompat="@tools:sample/avatars" />
+
+            </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>

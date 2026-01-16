@@ -23,7 +23,7 @@
     <string name="failed_text">Level Failed</string>
     <string name="text_finish"> So, did you enjoy being an IT for a short time?</string>
     <string name="title_activity_yes">activity_yes</string>
-    <string name="dashboard_game_card">Game</string>
+    <string name="dashboard_game_card">Play Game</string>
     <string name="back_to_levels">to Levels</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
