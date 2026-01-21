@@ -33,17 +33,20 @@
     <string name="username">Username</string>
     <string name="knowledge_level_brain_rot">Knowledge Level:</string>
     <string name="leaderboard">Leaderboard</string>
-    <string name="title_activity_summary_activty">SummaryActivty</string>
+    <string name="title_activity_summary_activity">SummaryActivity</string>
     <string name="title_activity_summary">SummaryActivity</string>
     <string name="summary">Summary</string>
     <string name="register">Register</string>
     <string name="password">Password</string>
     <string name="email_address">Email Address</string>
     <string name="confirm_password">Confirm Password</string>
-    <string name="already_have_an_account">Already have and account?</string>
+    <string name="already_have_an_account">Already have an account?</string>
     <string name="login_here">Log in</string>
     <string name="log_in">Log in</string>
     <string name="password_hidden">********</string>
+    <string name="login">Login</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="dont_have_an_account">Don\'t have an account?</string>
 
 
 </resources>

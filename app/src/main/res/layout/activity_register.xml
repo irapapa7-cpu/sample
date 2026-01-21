@@ -7,6 +7,35 @@
     tools:context=".Register"
     android:background="@color/background_blue">
 
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="@+id/btn_confirm_register"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/btn_confirm_register"
+        app:layout_constraintTop_toBottomOf="@+id/btn_confirm_register">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/already_have_an_account"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/textViewLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login"
+            android:textColor="@color/celestial_blue"
+            android:textStyle="bold"
+            android:translationX="5dp" />
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/register"
         android:layout_width="wrap_content"
@@ -119,29 +148,6 @@
         app:layout_constraintEnd_toEndOf="@+id/input_confirmPassword"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/input_confirmPassword"
-        app:layout_constraintTop_toBottomOf="@+id/input_confirmPassword"
-        tools:ignore="DuplicateSpeakableTextCheck" />
+        app:layout_constraintTop_toBottomOf="@+id/input_confirmPassword"/>
 
-    <TextView
-        android:id="@+id/alreadyHaveAccount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="@string/already_have_an_account"
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="@+id/btn_confirm_register"
-        app:layout_constraintHorizontal_bias="0.327"
-        app:layout_constraintStart_toStartOf="@+id/btn_confirm_register"
-        app:layout_constraintTop_toBottomOf="@+id/btn_confirm_register" />
-
-    <TextView
-        android:id="@+id/btn_log_in"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="12dp"
-        android:text="@string/log_in"
-        app:layout_constraintStart_toEndOf="@+id/alreadyHaveAccount"
-        app:layout_constraintTop_toBottomOf="@+id/btn_confirm_register" />
 </androidx.constraintlayout.widget.ConstraintLayout>
