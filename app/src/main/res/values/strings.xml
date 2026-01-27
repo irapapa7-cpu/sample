@@ -50,6 +50,9 @@
     <string name="google">Sign in with Google</string>
     <string name="or">Or</string>
     <string name="nickname">Nickname</string>
+    <string name="save">SAVE</string>
+    <string name="logout">Logout</string>
+    <string name="create_nickname">Create nickname</string>
     <string name="topic">Topic</string>
 
 
