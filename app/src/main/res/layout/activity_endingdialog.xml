@@ -17,7 +17,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        app:srcCompat="@drawable/text_bubble" />
+        app:srcCompat="@drawable/text_bubble"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/assessment_question_text"

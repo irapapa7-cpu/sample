@@ -15,11 +15,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3"
 
-        app:srcCompat="@drawable/ic_star" />
+        app:srcCompat="@drawable/ic_star"
+        tools:ignore="ContentDescription,ImageContrastCheck" />
 
     <TextView
         android:id="@+id/textView3"
-        android:layout_width="310dp"
+        android:layout_width="0dp"
         android:layout_height="93dp"
         android:fontFamily="@font/blueberry_personal"
         android:gravity="center"

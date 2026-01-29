@@ -65,7 +65,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/papa2" />
+                    android:src="@drawable/papa2"
+                    tools:ignore="ContentDescription" />
 
             </com.google.android.material.card.MaterialCardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -116,7 +117,8 @@
                     android:layout_height="60dp"
                     android:layout_centerHorizontal="true"
                     app:srcCompat="@android:drawable/ic_media_play"
-                    app:tint="@color/celestial_blue" />
+                    app:tint="@color/celestial_blue"
+                    tools:ignore="ContentDescription" />
 
                 <TextView
                     android:id="@+id/dashboard_game_card"
@@ -155,7 +157,8 @@
                     android:layout_height="60dp"
                     android:layout_centerHorizontal="true"
                     app:srcCompat="@android:drawable/ic_menu_sort_by_size"
-                    app:tint="@color/celestial_blue" />
+                    app:tint="@color/celestial_blue"
+                    tools:ignore="ContentDescription" />
 
                 <TextView
                     android:id="@+id/view_leaderboard_card"
@@ -193,7 +196,8 @@
                     android:layout_height="60dp"
                     android:layout_centerHorizontal="true"
                     app:srcCompat="@android:drawable/ic_menu_info_details"
-                    app:tint="@color/celestial_blue" />
+                    app:tint="@color/celestial_blue"
+                    tools:ignore="ContentDescription" />
 
                 <TextView
                     android:id="@+id/view_summa"

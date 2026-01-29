@@ -3,6 +3,7 @@ package com.example.sample
 import android.content.Context
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +20,9 @@ class SummaryActivity : AppCompatActivity() {
 
         summaryRecyclerView = findViewById(R.id.summary_recycler_view)
         summaryRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        val summaryText: TextView = findViewById(R.id.summary_text)
+        summaryText.text = "Summary"
 
         val backButton: Button = findViewById(R.id.back_button)
         backButton.setOnClickListener {

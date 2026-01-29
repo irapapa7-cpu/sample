@@ -115,7 +115,7 @@ class QuizActivity : AppCompatActivity() {
                 typeface = customFont
                 buttonTintList = colorStateList
                 background = ContextCompat.getDrawable(context, R.drawable.rounded_white_background)
-                setPadding(48, 48, 48, 48)
+                setPadding(20, 20, 20, 20)
             }
 
             val layoutParams = RadioGroup.LayoutParams(RadioGroup.LayoutParams.MATCH_PARENT, RadioGroup.LayoutParams.WRAP_CONTENT).apply {
