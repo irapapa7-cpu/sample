@@ -4,17 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EAE9C5"
+    android:background="@color/background_blue"
     tools:context=".LeaderboardActivity">
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="24dp"
         android:fontFamily="@font/blueberry_personal"
         android:gravity="center"
-        android:text="Leaderboard"
+        android:text="@string/leaderboard_text"
         android:textColor="@color/celestial_blue"
         android:textSize="30sp"
         android:textStyle="bold"
@@ -30,11 +30,12 @@
         app:layout_constraintBottom_toBottomOf="@+id/textView2"
         app:layout_constraintEnd_toStartOf="@+id/textView2"
         app:layout_constraintTop_toTopOf="@+id/textView2"
-        app:srcCompat="@drawable/crown" />
+        app:srcCompat="@drawable/crown"
+        tools:ignore="ContentDescription" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/leaderboard_recycler_view"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="24dp"
         app:layout_constraintBottom_toTopOf="@+id/back_button"

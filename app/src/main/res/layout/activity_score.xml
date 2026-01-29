@@ -27,7 +27,8 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_clear_red"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/score_popup_title"
@@ -80,7 +81,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:fontFamily="@font/roboto_bold"
-                android:text="Knowledge Level:"
+                android:text="@string/knowledge_level"
                 android:textAppearance="?attr/textAppearanceHeadline5"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -124,7 +125,7 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="5dp"
                 android:fontFamily="@font/blueberry_personal"
-                android:text="Reset Topic"
+                android:text="@string/reset_topic"
                 app:backgroundTint="#571919"
                 app:cornerRadius="12dp"
                 app:layout_constraintEnd_toStartOf="@+id/score_popup_summary_button"
@@ -137,7 +138,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/blueberry_personal"
-                android:text="Summary"
+                android:text="@string/summary"
                 android:textSize="15sp"
                 app:backgroundTint="@color/celestial_blue"
                 app:cornerRadius="12dp"
@@ -153,7 +154,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:fontFamily="@font/blueberry_personal"
-                android:text="LEVELS"
+                android:text="@string/levels_text"
                 android:visibility="gone"
                 app:backgroundTint="@color/celestial_blue"
                 app:cornerRadius="12dp"

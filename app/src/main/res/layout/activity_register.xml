@@ -9,20 +9,22 @@
     android:background="@color/background_blue">
 
     <LinearLayout
+        android:id="@+id/linearLayout_registration"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:gravity="center"
         android:orientation="horizontal"
+        android:padding="5dp"
         android:textAlignment="center"
-        app:layout_constraintEnd_toEndOf="@+id/btn_confirm_register"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/btn_confirm_register"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_confirm_register">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="2dp"
             android:text="@string/already_have_an_account"
             android:textColor="@color/black" />
 
@@ -30,6 +32,7 @@
             android:id="@+id/textViewLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="2dp"
             android:text="@string/login"
             android:textColor="@color/celestial_blue"
             android:textStyle="bold"
@@ -41,17 +44,16 @@
         android:id="@+id/register"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
         android:fontFamily="@font/blueberry_personal"
-        android:text="@string/register"
+        android:text="@string/register_title"
         android:textColor="@color/celestial_blue"
         android:textSize="34sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/input_email"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.100000024" />
+        app:layout_constraintVertical_chainStyle="packed"/>
 
     <EditText
         android:id="@+id/input_email"
@@ -71,6 +73,9 @@
         android:paddingTop="10dp"
         android:paddingEnd="10dp"
         android:paddingBottom="10dp"
+        android:textColorHint="#757575"
+        app:layout_constraintWidth_max="400dp"
+        app:layout_constraintBottom_toTopOf="@+id/input_password"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/register"
@@ -92,10 +97,12 @@
         android:paddingTop="10dp"
         android:paddingEnd="10dp"
         android:paddingBottom="10dp"
+        android:textColorHint="#757575"
         app:layout_constraintEnd_toEndOf="@+id/input_email"
         app:layout_constraintHorizontal_bias="0.666"
         app:layout_constraintStart_toStartOf="@+id/input_email"
         app:layout_constraintTop_toBottomOf="@+id/input_email"
+        app:layout_constraintBottom_toTopOf="@+id/input_confirmPassword"
         tools:ignore="VisualLintTextFieldSize" />
 
     <EditText
@@ -114,21 +121,24 @@
         android:paddingTop="10dp"
         android:paddingEnd="10dp"
         android:paddingBottom="10dp"
+        android:textColorHint="#757575"
         app:layout_constraintEnd_toEndOf="@+id/input_password"
         app:layout_constraintStart_toStartOf="@+id/input_password"
-        app:layout_constraintTop_toBottomOf="@+id/input_password" />
+        app:layout_constraintTop_toBottomOf="@+id/input_password"
+        app:layout_constraintBottom_toTopOf="@+id/btn_confirm_register"/>
 
     <Button
         android:id="@+id/btn_confirm_register"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:backgroundTint="@color/celestial_blue"
         android:fontFamily="@font/blueberry_personal"
-        android:text="@string/register"
+        android:text="@string/register_text"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout_registration"
         app:layout_constraintEnd_toEndOf="@+id/input_confirmPassword"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/input_confirmPassword"
-        app:layout_constraintTop_toBottomOf="@+id/input_confirmPassword"/>
+        app:layout_constraintTop_toBottomOf="@+id/input_confirmPassword" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

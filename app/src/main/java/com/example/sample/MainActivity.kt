@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +23,9 @@ class MainActivity : AppCompatActivity() {
 
         skillTreeRecyclerView = findViewById(R.id.skill_tree_recycler_view)
         skillTreeRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        val topicText: TextView = findViewById(R.id.topic_text)
+        topicText.text = "Topic"
 
         val resetButton: Button = findViewById(R.id.reset_button)
         resetButton.setOnClickListener {

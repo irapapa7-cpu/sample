@@ -36,6 +36,8 @@
     <string name="title_activity_summary_activity">SummaryActivity</string>
     <string name="title_activity_summary">SummaryActivity</string>
     <string name="summary">Summary</string>
+    <string name="register_title">Register</string>
+    <string name="register_text">Confirm Register</string>
     <string name="register">Register</string>
     <string name="password">Password</string>
     <string name="email_address">Email Address</string>
@@ -54,6 +56,16 @@
     <string name="logout">Logout</string>
     <string name="create_nickname">Create nickname</string>
     <string name="topic">Topic</string>
+    <string name="leaderboard_text">Leaderboard</string>
+    <string name="_1">1</string>
+    <string name="nickname_text">Nickname</string>
+    <string name="score_100">Score: 100</string>
+    <string name="introduction_to_it">Introduction to IT</string>
+    <string name="learn_the_basics_of_the_it_field">Learn the basics of the IT field</string>
+    <string name="score">Score</string>
+    <string name="knowledge_level">Knowledge Level:</string>
+    <string name="reset_topic">Reset Topic</string>
+    <string name="levels_text">LEVELS</string>
 
 
 </resources>
