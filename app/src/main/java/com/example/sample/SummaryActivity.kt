@@ -1,52 +1,60 @@
 package com.example.sample
 
-import android.content.Context
 import android.os.Bundle
 import android.widget.Button
-import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sample.data.SampleSkills
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class SummaryActivity : AppCompatActivity() {
 
     private lateinit var summaryRecyclerView: RecyclerView
-    private lateinit var nickname: String
+    private lateinit var mAuth: FirebaseAuth
+    private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_summary)
 
+        mAuth = FirebaseAuth.getInstance()
+
         summaryRecyclerView = findViewById(R.id.summary_recycler_view)
         summaryRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        val summaryText: TextView = findViewById(R.id.summary_text)
-        summaryText.text = "Summary"
-
-        val backButton: Button = findViewById(R.id.back_button)
-        backButton.setOnClickListener {
-            finish()
-        }
+        findViewById<Button>(R.id.back_button).setOnClickListener { finish() }
     }
 
     override fun onResume() {
         super.onResume()
-        val userProfilePrefs = getSharedPreferences("UserProfile", Context.MODE_PRIVATE)
-        nickname = userProfilePrefs.getString("NICKNAME", "") ?: ""
-
-        refreshSkillList()
+        if (mAuth.currentUser != null) {
+            refreshSkillListFromFirestore()
+        } else {
+            Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show()
+            finish()
+        }
     }
 
-    private fun refreshSkillList() {
-        val levelStatusPrefs = getSharedPreferences("LevelStatus", Context.MODE_PRIVATE)
-        val startedSkills = SampleSkills.skills.filter { skill ->
-            (1..10).any { level ->
-                levelStatusPrefs.contains("${nickname}_${skill.name}_${level}_passed")
-            }
-        }
+    private fun refreshSkillListFromFirestore() {
+        val userId = mAuth.currentUser!!.uid
+        val progressCollection = db.collection("users").document(userId).collection("progress")
 
-        val adapter = SummaryAdapter(startedSkills, this)
-        summaryRecyclerView.adapter = adapter
+        progressCollection.get()
+            .addOnSuccessListener { documents ->
+                // From all the progress documents, find the unique skill names that have been attempted.
+                val startedSkillsNames = documents.map { it.id.substringBeforeLast('_') }.toSet()
+
+                // Filter the main SampleSkills list to get the Skill objects.
+                val startedSkills = SampleSkills.skills.filter { it.name in startedSkillsNames }
+
+                summaryRecyclerView.adapter = SummaryAdapter(startedSkills, this)
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(this, "Failed to load summary: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 }

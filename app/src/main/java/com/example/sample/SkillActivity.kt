@@ -1,6 +1,5 @@
 package com.example.sample
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,39 +8,43 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldPath
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class SkillActivity : AppCompatActivity() {
 
     private lateinit var levelContainer: LinearLayout
-    private val levelStatus = mutableMapOf<Int, Boolean?>()
-    private lateinit var skillName: String
-    private lateinit var nickname: String
     private lateinit var scoreTextView: TextView
     private lateinit var percentageTextView: TextView
+
+    private lateinit var skillName: String
+    private val levelStatus = mutableMapOf<Int, Boolean>()
+
+    private lateinit var mAuth: FirebaseAuth
+    private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_skill)
 
-        skillName = intent.getStringExtra("SKILL_NAME") ?: ""
+        mAuth = FirebaseAuth.getInstance()
 
-        val skillTitle: TextView = findViewById(R.id.skill_title)
-        skillTitle.text = skillName
+        skillName = intent.getStringExtra("SKILL_NAME") ?: ""
+        findViewById<TextView>(R.id.skill_title).text = skillName
 
         levelContainer = findViewById(R.id.level_container)
         scoreTextView = findViewById(R.id.score_text_view)
         percentageTextView = findViewById(R.id.percentage_text_view)
 
-        val backButton: Button = findViewById(R.id.back_button)
-        backButton.setOnClickListener {
-            finish()
-        }
+        findViewById<Button>(R.id.back_button).setOnClickListener { finish() }
 
-        val scoreButton: Button = findViewById(R.id.reset_button)
-        scoreButton.setOnClickListener {
-            val score = levelStatus.values.count { it == true }
+        findViewById<Button>(R.id.reset_button).setOnClickListener {
+            val score = levelStatus.values.count { it }
             val percentage = ((score.toDouble() / 10.0) * 100).toInt()
 
             val intent = Intent(this, ScoreActivity::class.java).apply {
@@ -57,14 +60,12 @@ class SkillActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        val userProfilePrefs = getSharedPreferences("UserProfile", Context.MODE_PRIVATE)
-        nickname = userProfilePrefs.getString("NICKNAME", "") ?: ""
-
-        loadLevelStatus()
-        updateLevelButtons()
-        updateScoreDisplay()
-        updatePercentageDisplay()
-        checkTopicCompletion()
+        if (mAuth.currentUser != null) {
+            loadLevelStatusFromFirestore()
+        } else {
+            Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show()
+            finish()
+        }
     }
 
     private fun createLevelButtons() {
@@ -84,16 +85,50 @@ class SkillActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadLevelStatusFromFirestore() {
+        val userId = mAuth.currentUser!!.uid
+        val progressCollection = db.collection("users").document(userId).collection("progress")
+
+        levelStatus.clear()
+
+        // THE FIX: Use a prefix query on the document ID to get all levels for the current skill.
+        progressCollection
+            .orderBy(FieldPath.documentId())
+            .startAt(skillName + "_")
+            .endAt(skillName + "_\uf8ff")
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    val level = document.id.substringAfterLast('_').toIntOrNull()
+                    val passed = document.getBoolean("passed")
+                    
+                    if (level != null && passed != null) {
+                        levelStatus[level] = passed
+                    }
+                }
+                updateUI()
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(this, "Failed to load progress: ${exception.message}", Toast.LENGTH_SHORT).show()
+                updateUI() // Still update UI to show default state on failure
+            }
+    }
+
+    private fun updateUI() {
+        updateLevelButtons()
+        updateScoreDisplay()
+        updatePercentageDisplay()
+        checkTopicCompletion()
+    }
+
     private fun updateLevelButtons() {
         for (i in 0 until levelContainer.childCount) {
             val levelButtonView = levelContainer.getChildAt(i)
             val level = i + 1
-            val passed = levelStatus[level]
-
-            val levelButton: Button = levelButtonView.findViewById(R.id.level_button)
             val statusIcon: ImageView = levelButtonView.findViewById(R.id.level_status_icon)
+            val levelButton: Button = levelButtonView.findViewById(R.id.level_button)
 
-            when (passed) {
+            when (levelStatus[level]) {
                 true -> {
                     levelButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.green)
                     statusIcon.setImageResource(R.drawable.ic_star)
@@ -113,30 +148,31 @@ class SkillActivity : AppCompatActivity() {
     }
 
     private fun updateScoreDisplay() {
-        val score = levelStatus.values.count { it == true }
+        val score = levelStatus.values.count { it }
         scoreTextView.text = "Score: $score / 10"
     }
 
     private fun updatePercentageDisplay() {
-        val score = levelStatus.values.count { it == true }
+        val score = levelStatus.values.count { it }
         val percentage = (score.toDouble() / 10.0) * 100
         percentageTextView.text = "(${percentage.toInt()}%)"
 
         val colorRes = if (percentage >= 80) R.color.green else R.color.red
-        val colorStateList = ContextCompat.getColorStateList(this, colorRes)
-        scoreTextView.setTextColor(colorStateList)
-        percentageTextView.setTextColor(colorStateList)
+        scoreTextView.setTextColor(ContextCompat.getColor(this, colorRes))
+        percentageTextView.setTextColor(ContextCompat.getColor(this, colorRes))
     }
 
     private fun checkTopicCompletion() {
-        val topicStatusPrefs = getSharedPreferences("TopicStatus", Context.MODE_PRIVATE)
-        val hasBeenShownKey = "${nickname}_${skillName}_shown"
-        val hasBeenShown = topicStatusPrefs.getBoolean(hasBeenShownKey, false)
+        val userId = mAuth.currentUser?.uid ?: return
+        val topicStatusRef = db.collection("users").document(userId).collection("topicStatus").document(skillName)
 
-        if (!hasBeenShown) {
-            val answeredCount = levelStatus.values.count { it != null }
-            if (answeredCount == 10) {
-                val score = levelStatus.values.count { it == true }
+        topicStatusRef.get().addOnSuccessListener { document ->
+            if (document.exists() && document.getBoolean("shown") == true) {
+                return@addOnSuccessListener
+            }
+
+            if (levelStatus.size == 10) { 
+                val score = levelStatus.values.count { it }
                 val percentage = (score.toDouble() / 10.0) * 100
 
                 val intent = if (percentage >= 80) {
@@ -151,24 +187,7 @@ class SkillActivity : AppCompatActivity() {
                     putExtra("PERCENTAGE", percentage.toInt())
                 }
                 startActivity(intent)
-
-                with(topicStatusPrefs.edit()) {
-                    putBoolean(hasBeenShownKey, true)
-                    apply()
-                }
-            }
-        }
-    }
-
-    private fun loadLevelStatus() {
-        val sharedPref = getSharedPreferences("LevelStatus", Context.MODE_PRIVATE) ?: return
-        levelStatus.clear()
-        for (i in 1..10) {
-            val key = "${nickname}_${skillName}_${i}_passed"
-            if (sharedPref.contains(key)) {
-                levelStatus[i] = sharedPref.getBoolean(key, false)
-            } else {
-                levelStatus[i] = null
+                topicStatusRef.set(mapOf("shown" to true))
             }
         }
     }
