@@ -1,6 +1,6 @@
 package com.example.sample
 
-import android.content.Context
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -10,33 +10,31 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class ScoreActivity : AppCompatActivity() {
 
     private lateinit var skillName: String
-    private lateinit var nickname: String
+    private lateinit var mAuth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_score)
 
-        skillName = intent.getStringExtra("SKILL_NAME") ?: ""
-        val userProfilePrefs = getSharedPreferences("UserProfile", Context.MODE_PRIVATE)
-        nickname = userProfilePrefs.getString("NICKNAME", "") ?: ""
+        mAuth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
 
+        skillName = intent.getStringExtra("SKILL_NAME") ?: ""
         val score = intent.getIntExtra("SCORE", 0)
         val percentage = intent.getIntExtra("PERCENTAGE", 0)
         val source = intent.getStringExtra("SOURCE") ?: ""
 
-        val titleTextView: TextView = findViewById(R.id.score_popup_title)
-        val scoreTextView: TextView = findViewById(R.id.score_popup_score)
-        val percentageTextView: TextView = findViewById(R.id.score_popup_percentage)
-        val levelTitleTextView: TextView = findViewById(R.id.knowledge_level_title)
-        val levelDescTextView: TextView = findViewById(R.id.knowledge_level_description)
-        val levelKnowledge: TextView = findViewById(R.id.text_know)
-        val closeButton: ImageView = findViewById(R.id.score_popup_close_button)
-
-        titleTextView.text = skillName
+        // --- Setup Views ---
+        findViewById<TextView>(R.id.score_popup_title).text = skillName
+        val scoreTextView = findViewById<TextView>(R.id.score_popup_score)
+        val percentageTextView = findViewById<TextView>(R.id.score_popup_percentage)
         scoreTextView.text = "Score: $score / 10"
         percentageTextView.text = "($percentage%)"
 
@@ -45,10 +43,11 @@ class ScoreActivity : AppCompatActivity() {
         percentageTextView.setTextColor(ContextCompat.getColor(this, colorRes))
 
         val (level, description) = getKnowledgeLevel(percentage)
-        levelTitleTextView.text = level
-        levelDescTextView.text = description
-        levelKnowledge.text = "Knowledge Level: "
+        findViewById<TextView>(R.id.knowledge_level_title).text = level
+        findViewById<TextView>(R.id.knowledge_level_description).text = description
+        findViewById<TextView>(R.id.text_know).text = "Knowledge Level: "
 
+        // --- Button Visibility ---
         val resetButton: Button = findViewById(R.id.score_popup_reset_button)
         val summaryButton: Button = findViewById(R.id.score_popup_summary_button)
         val backToLevelsButton: Button = findViewById(R.id.score_popup_back_to_levels_button)
@@ -63,30 +62,26 @@ class ScoreActivity : AppCompatActivity() {
             backToLevelsButton.visibility = View.GONE
         }
 
-        resetButton.setOnClickListener {
-            resetCurrentTopicProgress()
-            setResult(RESULT_OK)
-            finish()
-        }
-
-        summaryButton.setOnClickListener {
-            val intent = Intent(this, TopicSummaryActivity::class.java)
-            intent.putExtra("SKILL_NAME", skillName)
+        // --- Button Listeners ---
+        resetButton.setOnClickListener { resetCurrentTopicProgress() }
+        summaryButton.setOnClickListener { 
+            val intent = Intent(this, TopicSummaryActivity::class.java).apply {
+                putExtra("SKILL_NAME", skillName)
+            }
             startActivity(intent)
             finish()
         }
 
-        backToLevelsButton.setOnClickListener {
-            val intent = Intent(this, SkillActivity::class.java)
-            intent.putExtra("SKILL_NAME", skillName)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        backToLevelsButton.setOnClickListener { 
+            val intent = Intent(this, SkillActivity::class.java).apply {
+                putExtra("SKILL_NAME", skillName)
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }
             startActivity(intent)
             finish()
-        }
+        } 
 
-        closeButton.setOnClickListener {
-            finish()
-        }
+        findViewById<ImageView>(R.id.score_popup_close_button).setOnClickListener { finish() }
     }
 
     private fun getKnowledgeLevel(percentage: Int): Pair<String, String> {
@@ -101,24 +96,37 @@ class ScoreActivity : AppCompatActivity() {
     }
 
     private fun resetCurrentTopicProgress() {
-        val levelStatusPrefs = getSharedPreferences("LevelStatus", Context.MODE_PRIVATE).edit()
-        val topicStatusPrefs = getSharedPreferences("TopicStatus", Context.MODE_PRIVATE).edit()
-        val wrongAnswersPrefs = getSharedPreferences("WrongAnswers", Context.MODE_PRIVATE).edit()
-        val attemptCounterPrefs = getSharedPreferences("AttemptCounter", Context.MODE_PRIVATE).edit()
-
-        for (i in 1..10) {
-            levelStatusPrefs.remove("${nickname}_${skillName}_${i}_passed")
-            wrongAnswersPrefs.remove("${nickname}_${skillName}_${i}_wrong_answers")
-            attemptCounterPrefs.remove("${nickname}_${skillName}_${i}_attempts")
+        val userId = mAuth.currentUser?.uid
+        if (userId == null || skillName.isEmpty()) {
+            Toast.makeText(this, "Cannot reset progress. User not logged in or skill is invalid.", Toast.LENGTH_LONG).show()
+            return
         }
 
-        topicStatusPrefs.remove("${nickname}_${skillName}_shown")
+        Toast.makeText(this, "Resetting progress for '$skillName'...", Toast.LENGTH_SHORT).show()
 
-        levelStatusPrefs.apply()
-        topicStatusPrefs.apply()
-        wrongAnswersPrefs.apply()
-        attemptCounterPrefs.apply()
+        val userRef = db.collection("users").document(userId)
+        val progressCollection = userRef.collection("progress")
+        val topicStatusRef = userRef.collection("topicStatus").document(skillName)
 
-        Toast.makeText(this, "Progress for '$skillName' has been reset.", Toast.LENGTH_SHORT).show()
+        val batch = db.batch()
+
+        // 1. Delete all 10 level documents for the current skill.
+        for (i in 1..10) {
+            val docRef = progressCollection.document("${skillName}_$i")
+            batch.delete(docRef)
+        }
+
+        // 2. THE FIX: Delete the "pop-up already shown" flag for this topic.
+        batch.delete(topicStatusRef)
+
+        batch.commit()
+            .addOnSuccessListener {
+                Toast.makeText(this, "Progress for '$skillName' has been reset.", Toast.LENGTH_SHORT).show()
+                setResult(Activity.RESULT_OK) // This can notify the previous activity to refresh
+                finish()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Failed to reset progress: ${e.message}", Toast.LENGTH_LONG).show()
+            }
     }
 }

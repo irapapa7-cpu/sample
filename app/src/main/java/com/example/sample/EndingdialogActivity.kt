@@ -1,6 +1,5 @@
 package com.example.sample
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -9,6 +8,9 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class EndingDialogActivity : AppCompatActivity() {
 
@@ -23,19 +25,22 @@ class EndingDialogActivity : AppCompatActivity() {
     private lateinit var questionTextView: TextView
     private lateinit var radioGroup: RadioGroup
 
+    private lateinit var mAuth: FirebaseAuth
+    private val db = Firebase.firestore
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_endingdialog)
 
+        mAuth = FirebaseAuth.getInstance()
+
         questionTextView = findViewById(R.id.assessment_question_text)
         radioGroup = findViewById(R.id.assessment_radio_group)
-        val submitButton: Button = findViewById(R.id.submit_assessment_button)
-
-        displayCurrentQuestion()
-
-        submitButton.setOnClickListener {
+        findViewById<Button>(R.id.submit_assessment_button).setOnClickListener {
             handleSubmission()
         }
+
+        displayCurrentQuestion()
     }
 
     private fun displayCurrentQuestion() {
@@ -74,20 +79,34 @@ class EndingDialogActivity : AppCompatActivity() {
     }
 
     private fun finishAssessment() {
-        // Mark the assessment as complete regardless of the answers.
-        val userProfilePrefs = getSharedPreferences("UserProfile", Context.MODE_PRIVATE)
-        val nickname = userProfilePrefs.getString("NICKNAME", "")
-        val assessmentPrefs = getSharedPreferences("AssessmentStatus", Context.MODE_PRIVATE)
-        assessmentPrefs.edit().putBoolean("${nickname}_hasTakenAssessment", true).apply()
-
-        // Combine all the collected responses.
-        val combinedMessage = userResponses.joinToString(" ")
-
-        // Navigate to the final screen.
-        val intent = Intent(this, YesActivity::class.java).apply {
-            putExtra("USER_CHOICE", combinedMessage.trim())
+        val userId = mAuth.currentUser?.uid
+        if (userId == null) {
+            Toast.makeText(this, "User not authenticated. Cannot save assessment.", Toast.LENGTH_LONG).show()
+            finish() // Can't proceed without a user
+            return
         }
-        startActivity(intent)
-        finish() // Finish this activity so the user can't come back to it
+
+        // Save the assessment completion flag to Firestore.
+        val assessmentRef = db.collection("users").document(userId).collection("assessmentStatus").document("Final Assessment")
+        assessmentRef.set(mapOf("hasTakenAssessment" to true))
+            .addOnSuccessListener { 
+                // Now that the flag is saved, navigate to the final screen.
+                val combinedMessage = userResponses.joinToString(" ")
+                val intent = Intent(this, YesActivity::class.java).apply {
+                    putExtra("USER_CHOICE", combinedMessage.trim())
+                }
+                startActivity(intent)
+                finish() // Finish this activity so the user can't come back to it
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Failed to save assessment status: ${e.message}", Toast.LENGTH_LONG).show()
+                // Still proceed to the final screen even if saving failed, so the user is not stuck.
+                val combinedMessage = userResponses.joinToString(" ")
+                val intent = Intent(this, YesActivity::class.java).apply {
+                    putExtra("USER_CHOICE", combinedMessage.trim())
+                }
+                startActivity(intent)
+                finish()
+            }
     }
 }

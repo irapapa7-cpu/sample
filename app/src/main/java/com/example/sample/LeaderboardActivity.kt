@@ -1,16 +1,19 @@
 package com.example.sample
 
-import android.content.Context
 import android.os.Bundle
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sample.data.SampleSkills
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class LeaderboardActivity : AppCompatActivity() {
 
     private lateinit var leaderboardRecyclerView: RecyclerView
+    private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,10 +22,7 @@ class LeaderboardActivity : AppCompatActivity() {
         leaderboardRecyclerView = findViewById(R.id.leaderboard_recycler_view)
         leaderboardRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        val backButton: Button = findViewById(R.id.back_button)
-        backButton.setOnClickListener {
-            finish()
-        }
+        findViewById<Button>(R.id.back_button).setOnClickListener { finish() }
     }
 
     override fun onResume() {
@@ -31,34 +31,68 @@ class LeaderboardActivity : AppCompatActivity() {
     }
 
     private fun refreshLeaderboard() {
-        val leaderboardData = calculateLeaderboardData()
-        leaderboardRecyclerView.adapter = LeaderboardAdapter(leaderboardData)
+        calculateLeaderboardData { leaderboardData ->
+            leaderboardRecyclerView.adapter = LeaderboardAdapter(leaderboardData)
+        }
     }
 
-    private fun calculateLeaderboardData(): List<Pair<String, Int>> {
-        val allUsersPrefs = getSharedPreferences("AllUsers", Context.MODE_PRIVATE)
-        val levelStatusPrefs = getSharedPreferences("LevelStatus", Context.MODE_PRIVATE)
-
-        // Get the definitive list of all nicknames from the keys of the AllUsers storage.
-        val allNicknames = allUsersPrefs.all.keys
-
+    private fun calculateLeaderboardData(onComplete: (List<Pair<String, Int>>) -> Unit) {
         val leaderboard = mutableListOf<Pair<String, Int>>()
+        val usersCollection = db.collection("users")
 
-        // For each real user, calculate their total score.
-        for (nickname in allNicknames) {
-            var totalScore = 0
-            for (skill in SampleSkills.skills) {
-                for (i in 1..10) {
-                    val passedKey = "${nickname}_${skill.name}_${i}_passed"
-                    if (levelStatusPrefs.getBoolean(passedKey, false)) {
-                        totalScore++
+        // 1. Get all users from the 'users' collection.
+        usersCollection.get().addOnSuccessListener { usersSnapshot ->
+            if (usersSnapshot.isEmpty) {
+                onComplete(emptyList()) // No users, nothing to show
+                return@addOnSuccessListener
+            }
+
+            val userCount = usersSnapshot.size()
+            var usersProcessed = 0
+
+            // 2. For each user, get their nickname and calculate their score.
+            for (userDoc in usersSnapshot.documents) {
+                val userId = userDoc.id
+                val nickname = userDoc.getString("nickname")
+
+                if (nickname != null) {
+                    // 3. Get the 'progress' subcollection for this specific user.
+                    usersCollection.document(userId).collection("progress")
+                        .get()
+                        .addOnSuccessListener { progressSnapshot ->
+                            var score = 0
+                            for (progressDoc in progressSnapshot) {
+                                if (progressDoc.getBoolean("passed") == true) {
+                                    score++
+                                }
+                            }
+                            leaderboard.add(Pair(nickname, score))
+
+                            usersProcessed++
+                            // 4. When all users are processed, sort and display the list.
+                            if (usersProcessed == userCount) {
+                                onComplete(leaderboard.sortedByDescending { it.second })
+                            }
+                        }
+                        .addOnFailureListener { 
+                            // If we can't get progress for one user, treat their score as 0
+                            leaderboard.add(Pair(nickname, 0))
+                            usersProcessed++
+                            if (usersProcessed == userCount) {
+                                onComplete(leaderboard.sortedByDescending { it.second })
+                            }
+                        }
+                } else {
+                    // Nickname is null, so skip but count as processed.
+                     usersProcessed++
+                     if (usersProcessed == userCount) {
+                        onComplete(leaderboard.sortedByDescending { it.second })
                     }
                 }
             }
-            leaderboard.add(Pair(nickname, totalScore))
+        }.addOnFailureListener { exception ->
+            Toast.makeText(this, "Error getting leaderboard: ${exception.message}", Toast.LENGTH_LONG).show()
+            onComplete(emptyList()) // Return an empty list on failure
         }
-
-        // Return the final list, sorted by score.
-        return leaderboard.sortedByDescending { it.second }
     }
 }

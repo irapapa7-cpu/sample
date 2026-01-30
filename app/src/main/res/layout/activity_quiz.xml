@@ -61,7 +61,8 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:visibility="gone"
-            tools:src="@mipmap/ic_launcher" />
+            tools:src="@mipmap/ic_launcher"
+            tools:ignore="ContentDescription" />
 
         <ScrollView
             android:id="@+id/scrollView"
